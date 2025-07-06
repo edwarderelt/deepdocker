@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  moshi-server:
+    build: .
+    environment:
+      - CUDA_COMPUTE_CAP=120
+      - CANDLE_CUDA_FORCE=1
+      - CUDA_MODULE_LOADING=EAGER
+      - CUDA_LAZY_LOADING=0
+    volumes:
+      - ./model-weights:/root/.cache/huggingface/hub  # This allows caching weight to host disk for multiple builds
+    ports:
+      - "5000:5000"
+      - "8080:8080"
+    #command: ["/app/startup.sh"]
+    tty: true
+    stdin_open: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1  # or "all" to use all GPUs
+              capabilities: [gpu]
